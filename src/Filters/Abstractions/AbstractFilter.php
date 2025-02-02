@@ -20,6 +20,10 @@ abstract class AbstractFilter
 
     public const ALLOWED_FOR_NAMESPACE = 'namespace';
 
+    /**
+     * @codeCoverageIgnore
+     * @return array
+     */
     abstract public function filterAllowedFor(): array;
 
     public function collectForSomeClass(string $path): ?ClassType {

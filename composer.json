@@ -3,7 +3,11 @@
   "description": "A toolset for Architecture checking in your application",
   "autoload": {
     "psr-4": {
-      "Vladitot\\ArchChecker\\": "src/",
+      "Vladitot\\ArchChecker\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Vladitot\\ArchChecker\\Tests\\": "tests/"
     }
   },

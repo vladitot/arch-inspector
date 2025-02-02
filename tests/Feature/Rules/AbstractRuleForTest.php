@@ -5,6 +5,7 @@ namespace Vladitot\ArchChecker\Tests\Feature\Rules;
 use PHPUnit\Framework\TestCase;
 use Vladitot\ArchChecker\Filters\Abstractions\AbstractFilter;
 use Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor;
+use Vladitot\ArchChecker\Should\Abstractions\AbstractShould;
 
 class AbstractRuleForTest extends TestCase
 {
@@ -42,5 +43,26 @@ class AbstractRuleForTest extends TestCase
 
         $obj->setRuleName('test');
         $this->assertEquals('test', $obj->ruleName);
+    }
+
+    /**
+     * @covers \Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor::should
+     * @return void
+     */
+    public function testShould() {
+        $obj = new class extends AbstractRuleFor {
+
+        };
+
+        $should = new class extends AbstractShould {
+
+            public function checksShouldAllowedFor(): array
+            {
+                return [];
+            }
+        };
+
+        $obj->should([$should]);
+        $this->assertEquals([$should], $obj->should);
     }
 }

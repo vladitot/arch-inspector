@@ -15,16 +15,21 @@ class FilesCache
 
     protected static array $pathByFullClassNamesCache = [];
 
-    public static function getRealEntityTypeByPath(string $path): string
-    {
-        if (isset(self::$cache[$path])) {
-            return self::$cache[$path]['type'];
-        }
-        $content = file_get_contents($path);
-        self::readToCache($content, $path);
-        return self::$cache[$path]['type'];
-    }
+//    public static function getRealEntityTypeByPath(string $path): string
+//    {
+//        if (isset(self::$cache[$path])) {
+//            return self::$cache[$path]['type'];
+//        }
+//        $content = file_get_contents($path);
+//        self::readToCache($content, $path);
+//        return self::$cache[$path]['type'];
+//    }
 
+    /**
+     * @param string $path
+     * @return ClassType
+     * @throws ReadingFromFileException
+     */
     public static function getClassByPath(string $path): ClassType
     {
         if (isset(self::$cache[$path])) {
@@ -96,6 +101,11 @@ class FilesCache
         return self::$cache[$path]['class'];
     }
 
+    /**
+     * @codeCoverageIgnore because it is private
+     * @param string $content
+     * @return array
+     */
     private static function getAllUsesOfClassWithRegex(string $content) {
         $uses = [];
         if (preg_match_all('/use\s+(.*);/', $content, $matches)) {
@@ -112,6 +122,13 @@ class FilesCache
         return self::$pathByFullClassNamesCache[trim($fullClassName, '\\')] ?? null;
     }
 
+    /**
+     * @codeCoverageIgnore because it is private
+     * @param string $content
+     * @param string $path
+     * @return void
+     * @throws ReadingFromFileException
+     */
     private static function readToCache(string $content, string $path)
     {
         try {
@@ -158,6 +175,11 @@ class FilesCache
         throw new ReadingFromFileException('Could not read info from file: '.$path);
     }
 
+    /**
+     * @codeCoverageIgnore because it is private
+     * @param string $content
+     * @return string|null
+     */
     private static function detectNamespaceFromFileWithRegularExpression(string $content) {
         $namespace = null;
         if (preg_match('/namespace\s+(.*);/', $content, $matches)) {

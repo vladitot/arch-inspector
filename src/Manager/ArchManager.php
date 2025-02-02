@@ -82,6 +82,15 @@ class ArchManager
         return $errors;
     }
 
+    /**
+     * @codeCoverageIgnore because it is private
+     * @param AbstractRuleFor $rule
+     * @param string $allowedFor
+     * @param string $methodName
+     * @param string $envDir
+     * @return array
+     * @throws \Exception
+     */
     private static function getByFilters(AbstractRuleFor $rule, string $allowedFor, string $methodName, string $envDir) {
         $byFilterFoundFiles = [];
         $filterIndex = 0;
@@ -108,6 +117,11 @@ class ArchManager
         return self::extractIntersectedFromAllFilters($byFilterFoundFiles);
     }
 
+    /**
+     * @codeCoverageIgnore because its just a wrapper for PHP function and it is private
+     * @param $dir
+     * @return array
+     */
     private static function scanAllDir($dir) {
         $result = [];
         foreach(scandir($dir) as $filename) {
@@ -142,10 +156,11 @@ class ArchManager
     }
 
     /**
+     * @codeCoverageIgnore because it is private
      * @param array $byFilterFoundFiles
      * @return array
      */
-    public static function extractIntersectedFromAllFilters(array $byFilterFoundFiles): array
+    private static function extractIntersectedFromAllFilters(array $byFilterFoundFiles): array
     {
         $results = [];
         //now lets get intersection of all filters by comparing '$found' as strings

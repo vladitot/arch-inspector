@@ -33,6 +33,10 @@ class Each extends AbstractFilter
         return FilesCache::getMethodsByPath($path);
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return array
+     */
     public function filterAllowedFor(): array
     {
         return [
