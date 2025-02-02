@@ -5,4 +5,4 @@ testEnv/*
 vendor/*
 .composer/*
 .bash_history
-.phpunit.cache/code-coverage/*
+.phpunit.cache/*
