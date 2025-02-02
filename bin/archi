@@ -1,0 +1,13 @@
+#!/usr/bin/php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+if (!file_exists(getcwd().'/archi.php')) {
+    echo "archi.php not found in current directory\n";
+    exit(1);
+}
+
+$rules = require getcwd().'/archi.php';
+
+\Vladitot\ArchChecker\Manager\ArchManager::checkArrayOfRules($rules);

@@ -51,6 +51,17 @@ class ArchManager
         throw new \Exception('Unknown rule type '.get_class($rule));
     }
 
+    public static function checkArrayOfRules(array $rules, string $envDir = '', bool $disablePrinting = false): int {
+        $errorCode = 0;
+        foreach ($rules as $rule) {
+            $newCode = self::checkEntity($rule, $envDir, $disablePrinting);
+            if ($newCode>0) {
+                $errorCode = $newCode;
+            }
+        }
+        return $errorCode;
+    }
+
     public static function checkEntity(AbstractRuleFor $rule, string $envDir = '', bool $disablePrinting = false): int {
 
         $searched = self::search($rule, $envDir);
@@ -142,7 +153,7 @@ class ArchManager
     {
         if (empty($errorsFromShould)) {
             if (!$disablePrinting) {
-                echo 'No errors found for '.self::$currentRuleName.PHP_EOL;
+//                echo 'No errors found for '.self::$currentRuleName.PHP_EOL;
             }
             return 0;
         } else {
