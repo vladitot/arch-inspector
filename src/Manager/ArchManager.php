@@ -51,20 +51,20 @@ class ArchManager
         throw new \Exception('Unknown rule type '.get_class($rule));
     }
 
-    public static function checkEntity(AbstractRuleFor $rule, string $envDir = ''): int {
+    public static function checkEntity(AbstractRuleFor $rule, string $envDir = '', bool $disablePrinting = false): int {
 
         $searched = self::search($rule, $envDir);
 
         if ($rule instanceof RuleForSomeClass) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForClass', $envDir));
+            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForClass', $envDir), $disablePrinting);
         } elseif ($rule instanceof RuleForSomeNamespace) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForNamespace', $envDir));
+            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForNamespace', $envDir), $disablePrinting);
         } elseif ($rule instanceof RuleForSomeInterface) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForInterface', $envDir));
+            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForInterface', $envDir), $disablePrinting);
         } elseif ($rule instanceof RuleForSomeTrait) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForTrait', $envDir));
+            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForTrait', $envDir), $disablePrinting);
         } elseif ($rule instanceof RuleForSomeMethod) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForMethod', $envDir));
+            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForMethod', $envDir), $disablePrinting);
         }
         throw new \Exception('Unknown rule type '.get_class($rule));
     }
@@ -124,14 +124,18 @@ class ArchManager
         return $result;
     }
 
-    private static function printErrors(array $errorsFromShould): int
+    private static function printErrors(array $errorsFromShould, bool $disablePrinting=false): int
     {
         if (empty($errorsFromShould)) {
-            echo 'No errors found for '.self::$currentRuleName.PHP_EOL;
+            if (!$disablePrinting) {
+                echo 'No errors found for '.self::$currentRuleName.PHP_EOL;
+            }
             return 0;
         } else {
             foreach ($errorsFromShould as $error) {
-                echo $error.PHP_EOL;
+                if (!$disablePrinting) {
+                    echo $error.PHP_EOL;
+                }
             }
             return 1;
         }

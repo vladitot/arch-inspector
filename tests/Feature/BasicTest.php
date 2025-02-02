@@ -19,6 +19,9 @@ class BasicTest extends TestCase
         Saver::removeTestEnv();
     }
 
+    /**
+     * @return string
+     */
     private function prepareForBasicTest()
     {
         $classA = new ClassType('A');
@@ -27,6 +30,11 @@ class BasicTest extends TestCase
         return Saver::saveNamespaceWithAClass($classA->getName(), $namespace);
     }
 
+    /**
+     * @coversNothing
+     * @return void
+     * @throws \Exception
+     */
     public function testBasicTest()
     {
         $this->prepareForBasicTest();
@@ -38,7 +46,7 @@ class BasicTest extends TestCase
         ]
         )->setRuleName('A should not be in SomeNamespace\SomeNamespace2\Allo');
 
-        $exitCode = ArchManager::checkEntity($enity, getcwd().'/testEnv');
+        $exitCode = ArchManager::checkEntity($enity, getcwd().'/testEnv', true);
         $this->assertEquals(1, $exitCode);
     }
 }

@@ -44,6 +44,11 @@ class NotUseAnyClassExtendsSpecifiedTest extends TestCase
         Saver::saveNamespaceWithAClass($classC->getName(), $namespace);
     }
 
+    /**
+     * @coversNothing
+     * @return void
+     * @throws \Exception
+     */
     public function testNotUseAnyClassExtendsSpecifiedTest()
     {
         $this->prepareForBasicTest();
@@ -55,7 +60,7 @@ class NotUseAnyClassExtendsSpecifiedTest extends TestCase
         ]
         )->setRuleName('C should not use anything extends class A');
 
-        $exitCode = ArchManager::checkEntity($enity, getcwd().'/testEnv');
+        $exitCode = ArchManager::checkEntity($enity, getcwd().'/testEnv', true);
         $this->assertEquals(1, $exitCode);
     }
 }

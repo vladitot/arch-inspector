@@ -35,7 +35,7 @@ class UnderNamespaceFilterTest extends TestCase
     }
 
     /**
-     * @covers \Vladitot\ArchChecker\Filters\UnderNamespace
+     * @coversNothing
      * @return void
      * @throws \Exception
      */
@@ -50,7 +50,7 @@ class UnderNamespaceFilterTest extends TestCase
             new NotExist()
         ])->setRuleName('A should not exist under SomeNamespace\SomeNamespace2\ASpace');
 
-        $exitCode = ArchManager::checkEntity($rule, getcwd().'/testEnv');
+        $exitCode = ArchManager::checkEntity($rule, getcwd().'/testEnv', true);
         $this->assertEquals(1, $exitCode);
 
         $rule = RuleForSomeClass::filter([
@@ -60,7 +60,7 @@ class UnderNamespaceFilterTest extends TestCase
             new NotExist()
         ])->setRuleName('C should not exist under SomeNamespace\SomeNamespace2\ASpace');
 
-        $exitCode = ArchManager::checkEntity($rule, getcwd().'/testEnv');
+        $exitCode = ArchManager::checkEntity($rule, getcwd().'/testEnv', true);
         $this->assertEquals(0, $exitCode);
     }
 }
