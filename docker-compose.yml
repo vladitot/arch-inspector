@@ -1,0 +1,11 @@
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    working_dir: /var/www/
+    user: www-data
+    environment:
+      PHP_IDE_CONFIG: "serverName=arch"
+    volumes:
+      - ./:/var/www
