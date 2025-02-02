@@ -3,3 +3,5 @@ composer.lock
 testEnv/*
 .phpunit.result.cache
 vendor/*
+.composer/*
+.bash_history
