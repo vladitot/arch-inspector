@@ -6,3 +6,5 @@ vendor/*
 .composer/*
 .bash_history
 .phpunit.cache/*
+coverage.xml
+junit.xml
