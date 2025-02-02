@@ -1,5 +1,5 @@
 {
-  "name": "vladitot/arch-checker",
+  "name": "vladitot/arch-inspector",
   "description": "A toolset for architecture check for php applications",
   "autoload": {
     "psr-4": {
