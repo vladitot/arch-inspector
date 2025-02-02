@@ -33,6 +33,12 @@ class UnderNamespaceFilterTest extends TestCase
         Saver::saveNamespaceWithAClass($classA->getName(), $namespace);
 
     }
+
+    /**
+     * @covers \Vladitot\ArchChecker\Filters\UnderNamespace
+     * @return void
+     * @throws \Exception
+     */
     public function testUnderNamespaceAndClassName() {
 
         $this->prepareForTest();
