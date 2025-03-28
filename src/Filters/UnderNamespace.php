@@ -19,25 +19,26 @@ class UnderNamespace extends AbstractFilter
 
     public function collectForSomeClass(string $path): ?ClassType
     {
-        $classNamespace = trim(FilesCache::getNamespaceByPath($path), '\\');
+        $gotNamespace = $this->filesCache->getNamespaceByPath($path)??'';
+        $classNamespace = trim($gotNamespace, '\\');
         if ($classNamespace===trim($this->namespace, '\\')) {
-            return FilesCache::getClassByPath($path);
+            return $this->filesCache->getClassByPath($path);
         }
         return null;
     }
 
     public function collectForSomeInterface(string $path): ?InterfaceType
     {
-        $classNamespace = trim(FilesCache::getNamespaceByPath($path), '\\');
+        $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
         if ($classNamespace===trim($this->namespace, '\\')) {
-            return FilesCache::getInterfaceByPath($path);
+            return $this->filesCache->getInterfaceByPath($path);
         }
         return null;
     }
 
     public function collectForSomeNamespace(string $path): ?string
     {
-        $classNamespace = trim(FilesCache::getNamespaceByPath($path), '\\');
+        $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
         if ($classNamespace===trim($this->namespace, '\\')) {
             return $classNamespace;
         }
@@ -46,17 +47,17 @@ class UnderNamespace extends AbstractFilter
 
     public function collectForSomeTrait(string $path): ?TraitType
     {
-        $classNamespace = trim(FilesCache::getNamespaceByPath($path), '\\');
+        $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
         if ($classNamespace===trim($this->namespace, '\\')) {
-            return FilesCache::getTraitByPath($path);
+            return $this->filesCache->getTraitByPath($path);
         }
         return null;
     }
 
     public function collectForSomeMethod(string $path): ?array
     {
-        $entity = FilesCache::detectEntityByPath($path);
-        $classNamespace = trim(FilesCache::getNamespaceByPath($path), '\\');
+        $entity = $this->filesCache->detectEntityByPath($path);
+        $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
         if ($classNamespace===trim($this->namespace, '\\')) {
             return $entity->getMethods();
         }

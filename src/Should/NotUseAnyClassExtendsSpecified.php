@@ -3,7 +3,6 @@
 namespace Vladitot\ArchChecker\Should;
 
 use Nette\PhpGenerator\ClassType;
-use Vladitot\ArchChecker\Cache\FilesCache;
 use Vladitot\ArchChecker\Should\Abstractions\AbstractShould;
 
 class NotUseAnyClassExtendsSpecified extends AbstractShould
@@ -27,15 +26,19 @@ class NotUseAnyClassExtendsSpecified extends AbstractShould
 
     public function checkIfShouldForClass(ClassType $class, string $path, string $ruleName): ?string
     {
-        $uses = FilesCache::getUsesByPath($path);
+        $uses = $this->filesCache->getUsesByPath($path);
         foreach ($uses as $use) {
-            $usePath = FilesCache::getPathByFullClassName($use);
+            $usePath = $this->filesCache->getPathByFullClassName($use);
             if (!$usePath) {
                 continue;
             }
-            $class = FilesCache::getClassByPath($usePath);
-            if (trim($class->getExtends(), '\\') === trim($this->className, '\\')) {
-                return "Class {$class->getName()} should not use any childrens({$use}) of class {$this->className} by rule: \"{$ruleName}\"";
+            $classFromUse = $this->filesCache->getClassByPath($usePath);
+            if ($classFromUse->getExtends()==null) {
+                continue;
+            }
+            if (trim($classFromUse->getExtends(), '\\') === trim($this->className, '\\')) {
+                $namespace = $this->filesCache->getNamespaceByPath($path);
+                return "Class ".$namespace."\\{$class->getName()} should not use any childrens({$use}) of class {$this->className} by rule: \"{$ruleName}\"";
             }
         }
 

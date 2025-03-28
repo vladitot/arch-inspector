@@ -2,7 +2,7 @@
 
 namespace Vladitot\ArchChecker\Tests\Feature\Rules;
 
-use PHPUnit\Framework\TestCase;
+use Vladitot\ArchChecker\Tests\TestCase;
 use Vladitot\ArchChecker\Filters\Abstractions\AbstractFilter;
 use Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor;
 use Vladitot\ArchChecker\Should\Abstractions\AbstractShould;

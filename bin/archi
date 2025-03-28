@@ -1,13 +1,41 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
+
+use Vladitot\ArchChecker\Factories\ArchManagerFactory;
+use Vladitot\ArchChecker\Printer\Printer;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-if (!file_exists(getcwd().'/archi.php')) {
-    echo "archi.php not found in current directory\n";
-    exit(1);
+if (!file_exists(getcwd().'/archi.php') || trim(file_get_contents(getcwd().'/archi.php')) === '<?php return [];' . PHP_EOL) {
+    file_put_contents(getcwd().'/archi.php', '<?php return [];');
+    echo 'Please fill archi.php with rules.' . PHP_EOL;
 }
 
-$rules = require getcwd().'/archi.php';
+$app = new Ahc\Cli\Application('Archi', 'stable');
 
-\Vladitot\ArchChecker\Manager\ArchManager::checkArrayOfRules($rules);
+$app->command('check', 'Run architecture checks', 'c')
+    ->action(function ($options, $args) {
+        $rules = require getcwd().'/archi.php';
+        $printer = new Printer(Printer::MODE_CONSOLE);
+        $manager = ArchManagerFactory::create($printer);
+        exit($manager->checkArrayOfRules($rules));
+    })->tap()
+    ->command('baseline', 'Run architecture checks to form new baseline', 'b')
+    ->action(function ($options, $args) {
+        $rules = require getcwd().'/archi.php';
+        $printer = new Printer(Printer::MODE_BASELINE);
+        $printer->resetBaseline();
+        $manager = ArchManagerFactory::create(
+            $printer
+        );
+
+        $manager->checkArrayOfRules($rules);
+    })->tap();
+
+$app->logo("          __
+ \ ______/ V`-,
+  }        /~~
+ /_)^ --,r'
+|b      |b");
+
+$app->handle($_SERVER['argv']);

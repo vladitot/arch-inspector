@@ -3,6 +3,7 @@
 namespace Vladitot\ArchChecker\Cache;
 
 use Nette\PhpGenerator\ClassType;
+use Nette\PhpGenerator\EnumType;
 use Nette\PhpGenerator\InterfaceType;
 use Nette\PhpGenerator\TraitType;
 use PhpParser\Builder\Method;
@@ -11,94 +12,107 @@ use Vladitot\ArchChecker\Exceptions\ReadingFromFileException;
 class FilesCache
 {
 
-    protected static array $cache = [];
+    protected array $cache = [];
 
-    protected static array $pathByFullClassNamesCache = [];
-
-//    public static function getRealEntityTypeByPath(string $path): string
-//    {
-//        if (isset(self::$cache[$path])) {
-//            return self::$cache[$path]['type'];
-//        }
-//        $content = file_get_contents($path);
-//        self::readToCache($content, $path);
-//        return self::$cache[$path]['type'];
-//    }
+    protected array $pathByFullClassNamesCache = [];
 
     /**
      * @param string $path
-     * @return ClassType
-     * @throws ReadingFromFileException
+     * @return ClassType|null
      */
-    public static function getClassByPath(string $path): ClassType
+    public function getClassByPath(string $path): ?ClassType
     {
-        if (isset(self::$cache[$path])) {
-            return self::$cache[$path]['class'];
+        try {
+            if (isset($this->cache[$path])) {
+                $return =  $this->cache[$path]['class'] ?? null;
+                return $return;
+            }
+            self::readToCache($path);
+            $return = $this->cache[$path]['class']??null;
+            return $return;
+        } catch (ReadingFromFileException $e) {
+            echo $e->getMessage().PHP_EOL;
+            return null;
         }
-        $content = file_get_contents($path);
-        self::readToCache($content, $path);
-        return self::$cache[$path]['class'];
     }
 
     /**
      * Method detects if there stored class, interface, trait in file and returns it
      * @param string $path
      * @return ClassType|InterfaceType|TraitType
+     * @throws ReadingFromFileException
      */
-    public static function detectEntityByPath(string $path)
+    public function detectEntityByPath(string $path)
     {
-        if (!isset(self::$cache[$path])) {
-            $content = file_get_contents($path);
-            self::readToCache($content, $path);
+        if (!isset($this->cache[$path])) {
+            self::readToCache($path);
         }
-        if (isset(self::$cache[$path]['class'])) {
-            return self::$cache[$path]['class'];
-        } elseif (isset(self::$cache[$path]['interface'])) {
-            return self::$cache[$path]['interface'];
-        } elseif (isset(self::$cache[$path]['trait'])) {
-            return self::$cache[$path]['trait'];
+        if (isset($this->cache[$path]['class'])) {
+            return $this->cache[$path]['class'];
+        } elseif (isset($this->cache[$path]['interface'])) {
+            return $this->cache[$path]['interface'];
+        } elseif (isset($this->cache[$path]['trait'])) {
+            return $this->cache[$path]['trait'];
+        } elseif (isset($this->cache[$path]['enum'])) {
+            return $this->cache[$path]['enum'];
         }
         throw new \Exception('Could not detect entity in file: '.$path);
     }
 
-    public static function getUsesByPath(string $path): array
+    public function getUsesByPath(string $path): array
     {
-        if (isset(self::$cache[$path])) {
-            return self::$cache[$path]['uses'];
+        try {
+            if (isset($this->cache[$path])) {
+                return $this->cache[$path]['uses']??[];
+            }
+            self::readToCache($path);
+            return $this->cache[$path]['uses']??[];
+        } catch (ReadingFromFileException $e) {
+            echo $e->getMessage() . PHP_EOL;
+            return [];
         }
-        $content = file_get_contents($path);
-        self::readToCache($content, $path);
-        return self::$cache[$path]['uses'];
     }
 
-    public static function getNamespaceByPath(string $path): string
+    public function getNamespaceByPath(string $path): ?string
     {
-        if (isset(self::$cache[$path])) {
-            return self::$cache[$path]['namespace'];
+        try {
+            if (isset($this->cache[$path])) {
+                return $this->cache[$path]['namespace']??null;
+            }
+            self::readToCache($path);
+            return $this->cache[$path]['namespace']??null;
+        } catch (ReadingFromFileException $e) {
+            echo $e->getMessage().PHP_EOL;
+            return null;
         }
-        $content = file_get_contents($path);
-        self::readToCache($content, $path);
-        return self::$cache[$path]['namespace'];
     }
 
-    public static function getInterfaceByPath(string $path): InterfaceType
+    public function getInterfaceByPath(string $path): ?InterfaceType
     {
-        if (isset(self::$cache[$path])) {
-            return self::$cache[$path]['class'];
+        try {
+            if (isset($this->cache[$path])) {
+                return $this->cache[$path]['interface']??null;
+            }
+            self::readToCache($path);
+            return $this->cache[$path]['interface']??null;
+        } catch (ReadingFromFileException $e) {
+            echo $e->getMessage() . PHP_EOL;
+            return null;
         }
-        $content = file_get_contents($path);
-        self::readToCache($content, $path);
-        return self::$cache[$path]['class'];
     }
 
-    public static function getTraitByPath(string $path): TraitType
+    public function getTraitByPath(string $path): ?TraitType
     {
-        if (isset(self::$cache[$path])) {
-            return self::$cache[$path]['class'];
+        try {
+            if (isset($this->cache[$path])) {
+                return $this->cache[$path]['trait']??null;
+            }
+            self::readToCache($path);
+            return $this->cache[$path]['trait']??null;
+        } catch (ReadingFromFileException $e) {
+            echo $e->getMessage() . PHP_EOL;
+            return null;
         }
-        $content = file_get_contents($path);
-        self::readToCache($content, $path);
-        return self::$cache[$path]['class'];
     }
 
     /**
@@ -106,7 +120,7 @@ class FilesCache
      * @param string $content
      * @return array
      */
-    private static function getAllUsesOfClassWithRegex(string $content) {
+    private function getAllUsesOfClassWithRegex(string $content) {
         $uses = [];
         if (preg_match_all('/use\s+(.*);/', $content, $matches)) {
             foreach ($matches[1] as $use) {
@@ -117,9 +131,29 @@ class FilesCache
         return $uses;
     }
 
-    public static function getPathByFullClassName(string $fullClassName): ?string
+    public function getPathByFullClassName(string $fullClassName): ?string
     {
-        return self::$pathByFullClassNamesCache[trim($fullClassName, '\\')] ?? null;
+        return $this->pathByFullClassNamesCache[trim($fullClassName, '\\')] ?? null;
+    }
+
+    /**
+     * @codeCoverageIgnore because it is private
+     * @param string $content
+     * @return string
+     * @throws ReadingFromFileException
+     */
+    private function detectIfFileContainsClassInterfaceOrTraitWithRegex(string $content): string
+    {
+        if (preg_match('/class\s+.*?{/s', $content)) {
+            return 'class';
+        } elseif (preg_match('/interface\s+.*?{/s', $content)) {
+            return 'interface';
+        } elseif (preg_match('/trait\s+.*?{/s', $content)) {
+            return 'trait';
+        } elseif (preg_match('/enum\s+.*?{/s', $content)) {
+            return 'enum';
+        }
+        throw new ReadingFromFileException('Could not detect entity(class,interface,trait) in file: '.$content);
     }
 
     /**
@@ -129,9 +163,29 @@ class FilesCache
      * @return void
      * @throws ReadingFromFileException
      */
-    private static function readToCache(string $content, string $path)
+    private function readToCache(string $path)
     {
-        try {
+        $content = file_get_contents($path);
+        if (trim($content) === '') {
+            throw new ReadingFromFileException('File is empty: '.$path);
+        }
+        $type = self::detectIfFileContainsClassInterfaceOrTraitWithRegex($content);
+        if ($type==='enum') {
+            /** @var EnumType $enum */
+            $enum = EnumType::fromCode($content);
+            $methodNames = [];
+            foreach ($enum->getMethods() as $method) {
+                $methodNames[] = $method->getName();
+            }
+            $this->cache[$path] = [
+                'methods'=>$methodNames,
+                'enum' => $enum,
+                'type' => 'enum',
+                'namespace' => self::detectNamespaceFromFileWithRegularExpression($content),
+                'uses' => self::getAllUsesOfClassWithRegex($content),
+            ];
+            return;
+        } else if ($type === 'class') {
             /** @var ClassType $class */
             $class = ClassType::fromCode($content);
             $methodNames = [];
@@ -139,39 +193,46 @@ class FilesCache
                 $methodNames[] = $method->getName();
             }
             $namespace = self::detectNamespaceFromFileWithRegularExpression($content);
-            self::$cache[$path] = [
+            $this->cache[$path] = [
                 'class' => $class,
                 'type' => 'class',
                 'namespace' => $namespace,
                 'methods' => $methodNames,
                 'uses' => self::getAllUsesOfClassWithRegex($content),
             ];
-            self::$pathByFullClassNamesCache[$namespace.'\\'.$class->getName()] = $path;
+            $this->pathByFullClassNamesCache[$namespace.'\\'.$class->getName()] = $path;
             return;
-        } catch (\Exception $e) {
-        }
-        try {
+        } elseif ($type=='interface') {
+            /** @var InterfaceType $interface */
             $interface = InterfaceType::fromCode($content);
-            self::$cache[$path] = [
-                'class' => $interface,
+            $methods = [];
+            foreach ($interface->getMethods() as $method) {
+                $methods[] = $method->getName();
+            }
+            $this->cache[$path] = [
+                'interface' => $interface,
+                'methods' => $methods,
                 'type' => 'interface',
-                'namespace' => self::detectNamespaceFromFileWithRegularExpression($content)
+                'namespace' => self::detectNamespaceFromFileWithRegularExpression($content),
+                'uses' => self::getAllUsesOfClassWithRegex($content),
             ];
             return;
-        } catch (\Exception $e) {
-        }
-
-        try {
+        } elseif ($type=='trait') {
+            /** @var TraitType $trait */
             $trait = TraitType::fromCode($content);
-            self::$cache[$path] = [
-                'class' => $trait,
+            $methods = [];
+            foreach ($trait->getMethods() as $method) {
+                $methods[] = $method->getName();
+            }
+            $this->cache[$path] = [
+                'trait' => $trait,
+                'methods' => $methods,
                 'type' => 'trait',
-                'namespace' => self::detectNamespaceFromFileWithRegularExpression($content)
+                'namespace' => self::detectNamespaceFromFileWithRegularExpression($content),
+                'uses' => self::getAllUsesOfClassWithRegex($content),
             ];
             return;
-        } catch (\Exception $e) {
         }
-
         throw new ReadingFromFileException('Could not read info from file: '.$path);
     }
 
@@ -180,7 +241,7 @@ class FilesCache
      * @param string $content
      * @return string|null
      */
-    private static function detectNamespaceFromFileWithRegularExpression(string $content) {
+    private function detectNamespaceFromFileWithRegularExpression(string $content) {
         $namespace = null;
         if (preg_match('/namespace\s+(.*);/', $content, $matches)) {
             $namespace = $matches[1];
@@ -192,7 +253,7 @@ class FilesCache
      * @param string $path
      * @return array|Method[]
      */
-    public static function getMethodsByPath(string $path): array
+    public function getMethodsByPath(string $path): array
     {
         $entity = self::detectEntityByPath($path);
         if ($entity instanceof ClassType) {
@@ -205,7 +266,7 @@ class FilesCache
         throw new \Exception('Could not get methods from entity in a file: '.$path);
     }
 
-    public static function getMethodByPathAndName(string $path, string $methodName): ?Method
+    public function getMethodByPathAndName(string $path, string $methodName): ?Method
     {
         $methods = self::getMethodsByPath($path);
         foreach ($methods as $method) {

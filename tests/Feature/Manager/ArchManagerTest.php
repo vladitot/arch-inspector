@@ -4,12 +4,16 @@ namespace Vladitot\ArchChecker\Tests\Feature\Manager;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use PHPUnit\Framework\TestCase;
+use Vladitot\ArchChecker\Tests\TestCase;
+use Vladitot\ArchChecker\Factories\ArchManagerFactory;
 use Vladitot\ArchChecker\Filters\Each;
 use Vladitot\ArchChecker\Manager\ArchManager;
 use Vladitot\ArchChecker\Rules\RuleForSomeClass;
 use Vladitot\ArchChecker\Tests\Support\Saver;
 
+/**
+ * @covers \Vladitot\ArchChecker\Manager\ArchManager
+ */
 class ArchManagerTest extends TestCase
 {
     private function prepareTestSearch()
@@ -21,11 +25,6 @@ class ArchManagerTest extends TestCase
     }
 
     /**
-     * @covers \Vladitot\ArchChecker\Manager\ArchManager::search
-     * @covers \Vladitot\ArchChecker\Cache\FilesCache::getClassByPath
-     * @covers \Vladitot\ArchChecker\Filters\Each::collectForSomeClass
-     * @covers \Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor::filter
-     * @covers \Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor::setRuleName
      * @return void
      * @throws \Exception
      */
@@ -35,7 +34,7 @@ class ArchManagerTest extends TestCase
             new Each(),
         ]);
         $rule->setRuleName('A should not exist under SomeNamespace\SomeNamespace2\ASpace');
-        $results = ArchManager::search($rule, getcwd() . '/testEnv');
+        $results = $this->manager->search($rule, getcwd() . '/testEnv');
         $expectedArray = [
             'SomeNamespace/SomeNamespace2/ASpace/A.php',
         ];

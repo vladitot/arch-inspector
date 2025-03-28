@@ -4,17 +4,20 @@ namespace Vladitot\ArchChecker\Tests\Feature\Filters;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use PHPUnit\Framework\TestCase;
+use Vladitot\ArchChecker\Tests\TestCase;
 use Vladitot\ArchChecker\Filters\UnderNamespace;
 use Vladitot\ArchChecker\Filters\WithName;
 use Vladitot\ArchChecker\Manager\ArchManager;
+use Vladitot\ArchChecker\Printer\Printer;
 use Vladitot\ArchChecker\Rules\RuleForSomeClass;
 use Vladitot\ArchChecker\Should\NotExist;
 use Vladitot\ArchChecker\Tests\Support\Saver;
 
+/**
+ * @covers \Vladitot\ArchChecker\Filters\UnderNamespace
+ */
 class UnderNamespaceFilterTest extends TestCase
 {
-
     private function prepareForTest()
     {
         $classA = new ClassType('A');
@@ -50,7 +53,7 @@ class UnderNamespaceFilterTest extends TestCase
             new NotExist()
         ])->setRuleName('A should not exist under SomeNamespace\SomeNamespace2\ASpace');
 
-        $exitCode = ArchManager::checkEntity($rule, getcwd().'/testEnv', true);
+        $exitCode = $this->manager->checkEntity($rule, getcwd().'/testEnv');
         $this->assertEquals(1, $exitCode);
 
         $rule = RuleForSomeClass::filter([
@@ -60,7 +63,7 @@ class UnderNamespaceFilterTest extends TestCase
             new NotExist()
         ])->setRuleName('C should not exist under SomeNamespace\SomeNamespace2\ASpace');
 
-        $exitCode = ArchManager::checkEntity($rule, getcwd().'/testEnv', true);
+        $exitCode = $this->manager->checkEntity($rule, getcwd().'/testEnv');
         $this->assertEquals(0, $exitCode);
     }
 }

@@ -26,6 +26,7 @@ abstract class AbstractRuleFor
     }
 
     /**
+     * @codeCoverageIgnore
      * @param AbstractShould[] $should
      * @return $this
      */
@@ -34,6 +35,11 @@ abstract class AbstractRuleFor
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @param string $ruleName
+     * @return $this
+     */
     public function setRuleName(string $ruleName) {
         $this->ruleName = $ruleName;
         return $this;

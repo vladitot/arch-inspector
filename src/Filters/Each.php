@@ -13,24 +13,24 @@ class Each extends AbstractFilter
 {
 
     public function collectForSomeClass(string $path): ?ClassType {
-        return FilesCache::getClassByPath($path);
+        return $this->filesCache->getClassByPath($path);
     }
 
     public function collectForSomeNamespace(string $path): ?string {
-        return FilesCache::getNamespaceByPath($path);
+        return $this->filesCache->getNamespaceByPath($path);
     }
 
     public function collectForSomeInterface(string $path): ?InterfaceType {
-        return FilesCache::getInterfaceByPath($path);
+        return $this->filesCache->getInterfaceByPath($path);
     }
 
     public function collectForSomeTrait(string $path): ?TraitType {
-        return FilesCache::getTraitByPath($path);
+        return $this->filesCache->getTraitByPath($path);
     }
 
     public function collectForSomeMethod(string $path): ?array
     {
-        return FilesCache::getMethodsByPath($path);
+        return $this->filesCache->getMethodsByPath($path);
     }
 
     /**

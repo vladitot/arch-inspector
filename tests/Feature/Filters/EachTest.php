@@ -4,8 +4,9 @@ namespace Vladitot\ArchChecker\Tests\Feature\Filters;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
+use Vladitot\ArchChecker\Factories\ArchManagerFactory;
 use Vladitot\ArchChecker\Filters\Each;
-use PHPUnit\Framework\TestCase;
+use Vladitot\ArchChecker\Tests\TestCase;
 use Vladitot\ArchChecker\Manager\ArchManager;
 use Vladitot\ArchChecker\Rules\RuleForSomeClass;
 use Vladitot\ArchChecker\Rules\RuleForSomeNamespace;
@@ -37,13 +38,7 @@ class EachTest extends TestCase
 
     }
 
-    /**
-     * @uses \Vladitot\ArchChecker\Cache\FilesCache::getClassByPath
-     * @uses \Vladitot\ArchChecker\Cache\FilesCache::getNamespaceByPath
-     * @uses \Vladitot\ArchChecker\Manager\ArchManager::search
-     * @uses \Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor::filter
-     * @uses \Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor::setRuleName
-     */
+
     public function testCollectForSomeClass()
     {
         $this->prepareTestCollectForSomeClass();
@@ -52,7 +47,7 @@ class EachTest extends TestCase
             new Each(),
         ]);
         $rule->setRuleName('A should not exist under SomeNamespace\SomeNamespace2\ASpace');
-        $results = ArchManager::search($rule, getcwd() . '/testEnv');
+        $results = $this->manager->search($rule, getcwd() . '/testEnv');
         $expectedArray = [
             'SomeNamespace/SomeNamespace2/ASpace/A.php',
             'SomeNamespace/SomeNamespace2/ASpace/B.php',
@@ -88,14 +83,6 @@ class EachTest extends TestCase
     }
 
 
-    /**
-     * @uses \Vladitot\ArchChecker\Cache\FilesCache::getNamespaceByPath
-     * @uses \Vladitot\ArchChecker\Manager\ArchManager::search
-     * @uses \Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor::filter
-     * @uses \Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor::setRuleName
-     * @return void
-     * @throws \Exception
-     */
     public function testCollectForSomeNamespace()
     {
         $this->prepareTestCollectForSomeNamespace();
@@ -103,7 +90,7 @@ class EachTest extends TestCase
         $rule = RuleForSomeNamespace::filter([
             new Each(),
         ])->setRuleName('Get all classes under each namespace');
-        $results = ArchManager::search($rule, getcwd() . '/testEnv');
+        $results = $this->manager->search($rule, getcwd() . '/testEnv');
         $expectedArray = [
             'SomeNamespace/SomeNamespace2/ASpace/A.php',
             'SomeNamespace/SomeNamespace2/ASpace/B.php',

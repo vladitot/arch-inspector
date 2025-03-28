@@ -17,7 +17,7 @@ class NotToBeInANamespace extends AbstractShould
 
     public function checkIfShouldForClass(ClassType $class, string $path, string $ruleName): ?string
     {
-        $namespace = trim(FilesCache::getNamespaceByPath($path), '\\');
+        $namespace = trim($this->filesCache->getNamespaceByPath($path), '\\');
         $namespaceToCheck = trim($this->namespace, '\\');
         if ($namespace === $namespaceToCheck) {
             return "Class {$class->getName()} should not be in namespace {$namespaceToCheck} by rule: \"{$ruleName}\"";

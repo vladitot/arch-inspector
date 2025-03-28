@@ -4,20 +4,17 @@ namespace Vladitot\ArchChecker\Tests\Feature\Should;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use PHPUnit\Framework\TestCase;
+use Vladitot\ArchChecker\Tests\TestCase;
+use Vladitot\ArchChecker\Factories\ArchManagerFactory;
 use Vladitot\ArchChecker\Filters\WithName;
 use Vladitot\ArchChecker\Manager\ArchManager;
+use Vladitot\ArchChecker\Printer\Printer;
 use Vladitot\ArchChecker\Rules\RuleForSomeClass;
 use Vladitot\ArchChecker\Should\NotUseAnyClassExtendsSpecified;
 use Vladitot\ArchChecker\Tests\Support\Saver;
 
 class NotUseAnyClassExtendsSpecifiedTest extends TestCase
 {
-
-    public function setUp(): void
-    {
-        error_reporting(E_ALL);
-    }
 
     public function tearDown(): void
     {
@@ -60,7 +57,7 @@ class NotUseAnyClassExtendsSpecifiedTest extends TestCase
         ]
         )->setRuleName('C should not use anything extends class A');
 
-        $exitCode = ArchManager::checkEntity($enity, getcwd().'/testEnv', true);
+        $exitCode = $this->manager->checkEntity($enity, getcwd().'/testEnv');
         $this->assertEquals(1, $exitCode);
     }
 }

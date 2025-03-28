@@ -6,6 +6,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\InterfaceType;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\TraitType;
+use Vladitot\ArchChecker\Cache\FilesCache;
 
 abstract class AbstractShould
 {
@@ -19,6 +20,12 @@ abstract class AbstractShould
     public const ALLOWED_FOR_METHOD = 'method';
 
     public const ALLOWED_FOR_NAMESPACE = 'namespace';
+
+    protected FilesCache $filesCache;
+
+    public function setFilesCache(FilesCache $filesCache) {
+        $this->filesCache = $filesCache;
+    }
 
     public function checkIfShouldForClass(ClassType $class, string $path, string $ruleName): ?string {
         throw new NotImplementedException();

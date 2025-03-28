@@ -7,6 +7,7 @@ use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\InterfaceType;
 use Nette\PhpGenerator\Method;
 use Nette\PhpGenerator\TraitType;
+use Vladitot\ArchChecker\Cache\FilesCache;
 
 abstract class AbstractFilter
 {
@@ -19,12 +20,17 @@ abstract class AbstractFilter
     public const ALLOWED_FOR_METHOD = 'method';
 
     public const ALLOWED_FOR_NAMESPACE = 'namespace';
+    protected FilesCache $filesCache;
 
     /**
      * @codeCoverageIgnore
      * @return array
      */
     abstract public function filterAllowedFor(): array;
+
+    public function setFilesCache(FilesCache $filesCache) {
+        $this->filesCache = $filesCache;
+    }
 
     public function collectForSomeClass(string $path): ?ClassType {
         throw new NotImplementedException();

@@ -8,3 +8,4 @@ vendor/*
 .phpunit.cache/*
 coverage.xml
 junit.xml
+baseline.json

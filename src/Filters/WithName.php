@@ -24,7 +24,7 @@ class WithName extends AbstractFilter
 
     public function collectForSomeClass(string $path): ?ClassType
     {
-        $class = FilesCache::getClassByPath($path);
+        $class = $this->filesCache->getClassByPath($path);
         if ($class->getName() === $this->name) {
             return $class;
         } else {
@@ -34,7 +34,7 @@ class WithName extends AbstractFilter
 
     public function collectForSomeNamespace(string $path): string
     {
-        $namespace = FilesCache::getNamespaceByPath($path);
+        $namespace = $this->filesCache->getNamespaceByPath($path);
         if ($this->name=== $namespace) {
             return $namespace;
         } else {
@@ -44,7 +44,7 @@ class WithName extends AbstractFilter
 
     public function collectForSomeInterface(string $path): ?InterfaceType
     {
-        $interface = FilesCache::getInterfaceByPath($path);
+        $interface = $this->filesCache->getInterfaceByPath($path);
         if ($this->name === $interface->getName()) {
             return $interface;
         } else {
@@ -54,7 +54,7 @@ class WithName extends AbstractFilter
 
     public function collectForSomeTrait(string $path): ?TraitType
     {
-        $trait = FilesCache::getTraitByPath($path);
+        $trait = $this->filesCache->getTraitByPath($path);
         if ($this->name === $trait->getName()) {
             return $trait;
         } else {
@@ -64,7 +64,7 @@ class WithName extends AbstractFilter
 
     public function collectForSomeMethod(string $path): ?array
     {
-        $methods = FilesCache::getMethodsByPath($path);
+        $methods = $this->filesCache->getMethodsByPath($path);
         $filteredMethods = [];
         foreach ($methods as $method) {
             if ($method->getName() === $this->name) {

@@ -2,19 +2,22 @@
 
 namespace Vladitot\ArchChecker\Manager;
 
-use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\Method;
+use Vladitot\ArchChecker\Cache\FilesCache;
+use Vladitot\ArchChecker\Printer\Printer;
 use Vladitot\ArchChecker\Rules\Abstractions\AbstractRuleFor;
 use Vladitot\ArchChecker\Rules\RuleForSomeClass;
 use Vladitot\ArchChecker\Rules\RuleForSomeInterface;
 use Vladitot\ArchChecker\Rules\RuleForSomeMethod;
 use Vladitot\ArchChecker\Rules\RuleForSomeNamespace;
-use Vladitot\ArchChecker\Filters\Abstractions\AbstractFilter;
 use Vladitot\ArchChecker\Rules\RuleForSomeTrait;
 
 class ArchManager
 {
-    public static string $currentRuleName = '';
+    public string $currentRuleName = '';
+    private Printer $printer;
+    private FilesCache $filesCache;
+
 
     /**
      * @param AbstractRuleFor $rule
@@ -22,7 +25,7 @@ class ArchManager
      * @return array
      * @throws \Exception
      */
-    public static function search(AbstractRuleFor $rule, string $envDir = '') {
+    public function search(AbstractRuleFor $rule, string $envDir = '') {
         if (empty($rule->ruleName)) {
             throw new \Exception('No rule name provided for '.get_class($rule));
         }
@@ -35,26 +38,37 @@ class ArchManager
                 throw new \Exception('No env dir provided and no app or src dir found');
             }
         }
-        self::$currentRuleName = $rule->ruleName;
-
+        $this->currentRuleName = $rule->ruleName;
         if ($rule instanceof RuleForSomeClass) {
-            return self::getByFilters($rule, 'class', 'collectForSomeClass', $envDir);
+            return $this->getByFilters($rule, 'class', 'collectForSomeClass', $envDir);
         } elseif ($rule instanceof RuleForSomeNamespace) {
-            return self::getByFilters($rule, 'namespace', 'collectForSomeNamespace', $envDir);
+            return $this->getByFilters($rule, 'namespace', 'collectForSomeNamespace', $envDir);
         } elseif ($rule instanceof RuleForSomeInterface) {
-            return self::getByFilters($rule, 'interface', 'collectForSomeInterface', $envDir);
+            return $this->getByFilters($rule, 'interface', 'collectForSomeInterface', $envDir);
         } elseif ($rule instanceof RuleForSomeTrait) {
-            return self::getByFilters($rule, 'trait', 'collectForSomeTrait', $envDir);
+            return $this->getByFilters($rule, 'trait', 'collectForSomeTrait', $envDir);
         } elseif ($rule instanceof RuleForSomeMethod) {
-            return self::getByFilters($rule, 'method', 'collectForSomeMethod', $envDir);
+            return $this->getByFilters($rule, 'method', 'collectForSomeMethod', $envDir);
         }
         throw new \Exception('Unknown rule type '.get_class($rule));
     }
 
-    public static function checkArrayOfRules(array $rules, string $envDir = '', bool $disablePrinting = false): int {
+
+    /**
+     * @codeCoverageIgnore
+     * @param Printer $printer
+     * @param FilesCache $filesCache
+     */
+    public function __construct(Printer $printer, FilesCache $filesCache)
+    {
+        $this->printer = $printer;
+        $this->filesCache = $filesCache;
+    }
+
+    public function checkArrayOfRules(array $rules, string $envDir = ''): int {
         $errorCode = 0;
         foreach ($rules as $rule) {
-            $newCode = self::checkEntity($rule, $envDir, $disablePrinting);
+            $newCode = $this->checkEntity($rule, $envDir);
             if ($newCode>0) {
                 $errorCode = $newCode;
             }
@@ -62,28 +76,38 @@ class ArchManager
         return $errorCode;
     }
 
-    public static function checkEntity(AbstractRuleFor $rule, string $envDir = '', bool $disablePrinting = false): int {
+    public function checkEntity(AbstractRuleFor $rule, string $envDir = ''): int {
 
-        $searched = self::search($rule, $envDir);
+        if (!$envDir) {
+            if (file_exists(getcwd().'/app')) {
+                $envDir = getcwd().'/app';
+            } elseif (file_exists(getcwd().'/src')) {
+                $envDir = getcwd().'/src';
+            } else {
+                throw new \Exception('No env dir provided and no app or src dir found');
+            }
+        }
+        $searched = $this->search($rule, $envDir);
 
         if ($rule instanceof RuleForSomeClass) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForClass', $envDir), $disablePrinting);
+            return $this->printErrors($this->checkIfShould($rule, $searched, 'checkIfShouldForClass', $envDir));
         } elseif ($rule instanceof RuleForSomeNamespace) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForNamespace', $envDir), $disablePrinting);
+            return $this->printErrors($this->checkIfShould($rule, $searched, 'checkIfShouldForNamespace', $envDir));
         } elseif ($rule instanceof RuleForSomeInterface) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForInterface', $envDir), $disablePrinting);
+            return $this->printErrors($this->checkIfShould($rule, $searched, 'checkIfShouldForInterface', $envDir));
         } elseif ($rule instanceof RuleForSomeTrait) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForTrait', $envDir), $disablePrinting);
+            return $this->printErrors($this->checkIfShould($rule, $searched, 'checkIfShouldForTrait', $envDir));
         } elseif ($rule instanceof RuleForSomeMethod) {
-            return self::printErrors(self::checkIfShould($rule, $searched, 'checkIfShouldForMethod', $envDir), $disablePrinting);
+            return $this->printErrors($this->checkIfShould($rule, $searched, 'checkIfShouldForMethod', $envDir));
         }
         throw new \Exception('Unknown rule type '.get_class($rule));
     }
 
-    protected static function checkIfShould(AbstractRuleFor $rule, array $array, string $method, string $envDir) {
+    protected function checkIfShould(AbstractRuleFor $rule, array $array, string $method, string $envDir) {
         $errors = [];
         foreach ($array as $path=>$item) {
             foreach ($rule->should as $should) {
+                $should->setFilesCache($this->filesCache);
                 $error = $should->$method($item, $envDir.'/'.$path, $rule->ruleName);
                 if ($error) {
                     $errors[] = $error;
@@ -102,14 +126,15 @@ class ArchManager
      * @return array
      * @throws \Exception
      */
-    private static function getByFilters(AbstractRuleFor $rule, string $allowedFor, string $methodName, string $envDir) {
+    private function getByFilters(AbstractRuleFor $rule, string $allowedFor, string $methodName, string $envDir) {
         $byFilterFoundFiles = [];
         $filterIndex = 0;
         foreach ($rule->filters as $filter) {
-            foreach (self::scanAllDir($envDir) as $filename) {
+            foreach ($this->scanAllDir($envDir) as $filename) {
                 if (!in_array($allowedFor, $filter->filterAllowedFor())) {
-                    throw new \Exception('Filter '.get_class($filter).' is not allowed for '.self::$currentRuleName);
+                    throw new \Exception('Filter '.get_class($filter).' is not allowed for '.$this->currentRuleName);
                 }
+                $filter->setFilesCache($this->filesCache);
                 $found = $filter->$methodName($envDir.'/'.$filename);
                 if ($found) {
                     if ($allowedFor==='method') {
@@ -125,7 +150,7 @@ class ArchManager
             }
             $filterIndex++;
         }
-        return self::extractIntersectedFromAllFilters($byFilterFoundFiles);
+        return $this->extractIntersectedFromAllFilters($byFilterFoundFiles);
     }
 
     /**
@@ -133,36 +158,39 @@ class ArchManager
      * @param $dir
      * @return array
      */
-    private static function scanAllDir($dir) {
+    private function scanAllDir($dir) {
         $result = [];
         foreach(scandir($dir) as $filename) {
             if ($filename[0] === '.') continue;
             $filePath = $dir . '/' . $filename;
             if (is_dir($filePath)) {
-                foreach (self::scanAllDir($filePath) as $childFilename) {
+                foreach ($this->scanAllDir($filePath) as $childFilename) {
                     $result[] = $filename . '/' . $childFilename;
                 }
             } else {
+                if (pathinfo($filename, PATHINFO_EXTENSION) !== 'php') {
+                    continue;
+                }
                 $result[] = $filename;
             }
         }
         return $result;
     }
 
-    private static function printErrors(array $errorsFromShould, bool $disablePrinting=false): int
+    private function printErrors(array $errorsFromShould): int
     {
         if (empty($errorsFromShould)) {
-            if (!$disablePrinting) {
-//                echo 'No errors found for '.self::$currentRuleName.PHP_EOL;
-            }
+//                echo 'No errors found for '.$this->$currentRuleName.PHP_EOL;
             return 0;
         } else {
+            $formedExitCode = 0;
             foreach ($errorsFromShould as $error) {
-                if (!$disablePrinting) {
-                    echo $error.PHP_EOL;
+                $printed = $this->printer->printError($error.PHP_EOL);
+                if ($printed) {
+                    $formedExitCode = 1;
                 }
             }
-            return 1;
+            return $formedExitCode;
         }
     }
 
@@ -171,7 +199,7 @@ class ArchManager
      * @param array $byFilterFoundFiles
      * @return array
      */
-    private static function extractIntersectedFromAllFilters(array $byFilterFoundFiles): array
+    private function extractIntersectedFromAllFilters(array $byFilterFoundFiles): array
     {
         $results = [];
         //now lets get intersection of all filters by comparing '$found' as strings

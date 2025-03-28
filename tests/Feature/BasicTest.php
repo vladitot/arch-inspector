@@ -4,7 +4,9 @@ namespace Vladitot\ArchChecker\Tests\Feature;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use PHPUnit\Framework\TestCase;
+use Vladitot\ArchChecker\Tests\TestCase;
+use Vladitot\ArchChecker\Factories\ArchManagerFactory;
+use Vladitot\ArchChecker\Printer\Printer;
 use Vladitot\ArchChecker\Rules\RuleForSomeClass;
 use Vladitot\ArchChecker\Filters\WithName;
 use Vladitot\ArchChecker\Manager\ArchManager;
@@ -13,12 +15,6 @@ use Vladitot\ArchChecker\Should\NotToBeInANamespace;
 
 class BasicTest extends TestCase
 {
-
-    public function tearDown(): void
-    {
-        Saver::removeTestEnv();
-    }
-
     /**
      * @return string
      */
@@ -46,7 +42,7 @@ class BasicTest extends TestCase
         ]
         )->setRuleName('A should not be in SomeNamespace\SomeNamespace2\Allo');
 
-        $exitCode = ArchManager::checkEntity($enity, getcwd().'/testEnv', true);
+        $exitCode = $this->manager->checkEntity($enity, getcwd().'/testEnv');
         $this->assertEquals(1, $exitCode);
     }
 }

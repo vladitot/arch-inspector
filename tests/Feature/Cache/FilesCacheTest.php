@@ -4,7 +4,7 @@ namespace Vladitot\ArchChecker\Tests\Feature\Cache;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
-use PHPUnit\Framework\TestCase;
+use Vladitot\ArchChecker\Tests\TestCase;
 use Vladitot\ArchChecker\Tests\Support\Saver;
 
 /**
@@ -30,15 +30,19 @@ class FilesCacheTest extends TestCase
         Saver::saveNamespaceWithAClass($classA->getName(), $namespace);
     }
 
+    /**
+     * @return void
+     */
     public function testGetClassByPath()
     {
         $this->prepareTestGetClassByPath();
 
-        $class = \Vladitot\ArchChecker\Cache\FilesCache::getClassByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/ASpace/A.php');
+        $cache = new \Vladitot\ArchChecker\Cache\FilesCache();
+        $class = $cache->getClassByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/ASpace/A.php');
         $this->assertInstanceOf(ClassType::class, $class);
         $this->assertEquals('A', $class->getName());
 
-        $class = \Vladitot\ArchChecker\Cache\FilesCache::getClassByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/ASpace/B.php');
+        $class = $cache->getClassByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/ASpace/B.php');
         $this->assertInstanceOf(ClassType::class, $class);
         $this->assertEquals('B', $class->getName());
 
@@ -61,14 +65,17 @@ class FilesCacheTest extends TestCase
         Saver::saveNamespaceWithAClass($classA->getName(), $namespace);
     }
 
+    /**
+     * @return void
+     */
     public function testGetNamespaceByPath() {
         $this->prepareTestGetNamespaceByPath();
-
-        $namespace = \Vladitot\ArchChecker\Cache\FilesCache::getNamespaceByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/ASpace/A.php');
+        $cache = new \Vladitot\ArchChecker\Cache\FilesCache();
+        $namespace = $cache->getNamespaceByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/ASpace/A.php');
         $this->assertIsString($namespace);
         $this->assertEquals('SomeNamespace\SomeNamespace2\ASpace', $namespace);
 
-        $namespace = \Vladitot\ArchChecker\Cache\FilesCache::getNamespaceByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/CSpace/C.php');
+        $namespace = $cache->getNamespaceByPath(getcwd() . '/testEnv/SomeNamespace/SomeNamespace2/CSpace/C.php');
         $this->assertIsString($namespace);
     }
 }
