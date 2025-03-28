@@ -4,7 +4,7 @@
 use Vladitot\ArchChecker\Factories\ArchManagerFactory;
 use Vladitot\ArchChecker\Printer\Printer;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__.'/../autoload.php';
 
 if (!file_exists(getcwd().'/archi.php') || trim(file_get_contents(getcwd().'/archi.php')) === '<?php return [];' . PHP_EOL) {
     file_put_contents(getcwd().'/archi.php', '<?php return [];');
