@@ -130,6 +130,7 @@ class ArchManager
         $byFilterFoundFiles = [];
         $filterIndex = 0;
         foreach ($rule->filters as $filter) {
+            $byFilterFoundFiles[$filterIndex] = [];
             foreach ($this->scanAllDir($envDir) as $filename) {
                 if (!in_array($allowedFor, $filter->filterAllowedFor())) {
                     throw new \Exception('Filter '.get_class($filter).' is not allowed for '.$this->currentRuleName);

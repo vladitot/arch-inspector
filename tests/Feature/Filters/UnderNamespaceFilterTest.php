@@ -35,6 +35,11 @@ class UnderNamespaceFilterTest extends TestCase
         $namespace->add($classA);
         Saver::saveNamespaceWithAClass($classA->getName(), $namespace);
 
+        $classA = new ClassType('D');
+        $namespace = new PhpNamespace('SomeNamespace\SomeNamespace2\DSpace\SuperDSpace');
+        $namespace->add($classA);
+        Saver::saveNamespaceWithAClass($classA->getName(), $namespace);
+
     }
 
     /**
@@ -65,5 +70,25 @@ class UnderNamespaceFilterTest extends TestCase
 
         $exitCode = $this->manager->checkEntity($rule, getcwd().'/testEnv');
         $this->assertEquals(0, $exitCode);
+    }
+
+    /**
+     * @coversNothing
+     * @return void
+     * @throws \Exception
+     */
+    public function testUnderNamespaceDeeper() {
+
+        $this->prepareForTest();
+
+        $rule = RuleForSomeClass::filter([
+            new UnderNamespace('SomeNamespace\SomeNamespace2'),
+            new WithName('D'),
+        ])->should([
+            new NotExist()
+        ])->setRuleName('D should not exist under SomeNamespace\SomeNamespace2');
+
+        $exitCode = $this->manager->checkEntity($rule, getcwd().'/testEnv');
+        $this->assertEquals(1, $exitCode);
     }
 }

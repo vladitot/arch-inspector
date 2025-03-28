@@ -21,7 +21,7 @@ class UnderNamespace extends AbstractFilter
     {
         $gotNamespace = $this->filesCache->getNamespaceByPath($path)??'';
         $classNamespace = trim($gotNamespace, '\\');
-        if ($classNamespace===trim($this->namespace, '\\')) {
+        if (str_starts_with($classNamespace, trim($this->namespace, '\\'))) {
             return $this->filesCache->getClassByPath($path);
         }
         return null;
@@ -30,7 +30,7 @@ class UnderNamespace extends AbstractFilter
     public function collectForSomeInterface(string $path): ?InterfaceType
     {
         $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
-        if ($classNamespace===trim($this->namespace, '\\')) {
+        if (str_starts_with($classNamespace, trim($this->namespace, '\\'))) {
             return $this->filesCache->getInterfaceByPath($path);
         }
         return null;
@@ -39,7 +39,7 @@ class UnderNamespace extends AbstractFilter
     public function collectForSomeNamespace(string $path): ?string
     {
         $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
-        if ($classNamespace===trim($this->namespace, '\\')) {
+        if (str_starts_with($classNamespace, trim($this->namespace, '\\'))) {
             return $classNamespace;
         }
         return null;
@@ -48,7 +48,7 @@ class UnderNamespace extends AbstractFilter
     public function collectForSomeTrait(string $path): ?TraitType
     {
         $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
-        if ($classNamespace===trim($this->namespace, '\\')) {
+        if (str_starts_with($classNamespace, trim($this->namespace, '\\'))) {
             return $this->filesCache->getTraitByPath($path);
         }
         return null;
@@ -58,7 +58,7 @@ class UnderNamespace extends AbstractFilter
     {
         $entity = $this->filesCache->detectEntityByPath($path);
         $classNamespace = trim($this->filesCache->getNamespaceByPath($path)??'', '\\');
-        if ($classNamespace===trim($this->namespace, '\\')) {
+        if (str_starts_with($classNamespace, trim($this->namespace, '\\'))) {
             return $entity->getMethods();
         }
         return null;
